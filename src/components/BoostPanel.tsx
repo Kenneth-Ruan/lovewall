@@ -2,7 +2,7 @@
 
 import { useFormStatus } from 'react-dom';
 import { createBoostCheckout } from '@/app/message/[id]/boost-actions';
-import { BOOSTS, type BoostType } from '@/lib/stripe';
+import { BOOSTS, type BoostType } from '@/lib/boost-config';
 
 function BoostButton({ label, emoji, price }: { label: string; emoji: string; price: number }) {
   const { pending } = useFormStatus();
