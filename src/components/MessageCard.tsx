@@ -36,19 +36,22 @@ export default function MessageCard({ message }: { message: Message }) {
   const isLiveSticky = message.is_sticky && message.sticky_until && new Date(message.sticky_until) > new Date();
 
   return (
-    <div className={`masonry-item rounded-2xl border p-5 shadow-sm hover:shadow-md transition-shadow ${colorClass} ${premiumClass}`}>
-      <div className="text-xs text-[#9ca3af] mb-3 flex items-center gap-1.5">
-        <span>{heart}</span>
-        <span className="font-medium text-[#6b7280]">{displayName}</span>
-        {isLiveSticky && <span className="text-[10px] bg-yellow-100 text-yellow-700 font-semibold px-1.5 py-0.5 rounded-full">📌 featured</span>}
-        <span className="ml-auto">{date}</span>
-      </div>
-      <Link href={`/message/${message.id}`}>
-        <p className="text-[#1a1a2e] leading-relaxed text-sm whitespace-pre-wrap hover:opacity-80 transition-opacity">
+    <div className={`masonry-item rounded-2xl border shadow-sm hover:shadow-md transition-shadow ${colorClass} ${premiumClass}`}>
+      <Link
+        href={`/message/${message.id}`}
+        className="block p-5 pb-3 rounded-t-2xl active:opacity-60 active:scale-[0.99] transition-all duration-100"
+      >
+        <div className="text-xs text-[#9ca3af] mb-3 flex items-center gap-1.5">
+          <span>{heart}</span>
+          <span className="font-medium text-[#6b7280]">{displayName}</span>
+          {isLiveSticky && <span className="text-[10px] bg-yellow-100 text-yellow-700 font-semibold px-1.5 py-0.5 rounded-full">📌 featured</span>}
+          <span className="ml-auto">{date}</span>
+        </div>
+        <p className="text-[#1a1a2e] leading-relaxed text-sm whitespace-pre-wrap">
           {message.content}
         </p>
       </Link>
-      <div className="mt-4">
+      <div className="px-5 pb-5 pt-2">
         <ReactionBar messageId={message.id} initialCounts={message.reaction_counts ?? []} />
       </div>
     </div>
