@@ -9,6 +9,7 @@ export interface Message {
   is_anonymous: boolean;
   created_at: string;
   reaction_counts?: ReactionCount[];
+  allow_comments?: boolean;
 }
 
 export interface ReactionCount {

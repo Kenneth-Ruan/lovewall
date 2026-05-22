@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import ReactionBar from '@/components/ReactionBar';
 import LocalTimestamp from '@/components/LocalTimestamp';
+import CommentSection from '@/components/CommentSection';
 import type { Message } from '@/types';
 
 const COLOR_BG: Record<string, string> = {
@@ -47,6 +48,11 @@ export default async function MessagePage({ params }: { params: Promise<{ id: st
 
   if (!message) notFound();
 
+  const [{ data: comments }, { data: { user } }] = await Promise.all([
+    supabase.from('comments').select('*').eq('message_id', id).order('created_at', { ascending: true }),
+    supabase.auth.getUser(),
+  ]);
+
   const msg = message as Message;
   const colorClass = COLOR_BG[msg.color] ?? COLOR_BG.rose;
   const displayName = msg.is_anonymous ? 'A secret admirer' : msg.author_name;
@@ -84,6 +90,14 @@ export default async function MessagePage({ params }: { params: Promise<{ id: st
           <p className="text-xs text-[#9ca3af] mb-3">React to this note</p>
           <ReactionBar messageId={msg.id} initialCounts={msg.reaction_counts ?? []} />
         </div>
+
+        {msg.allow_comments && (
+          <CommentSection
+            messageId={msg.id}
+            initialComments={comments ?? []}
+            isSignedIn={!!user}
+          />
+        )}
       </article>
 
       <div className="text-center mt-10">
