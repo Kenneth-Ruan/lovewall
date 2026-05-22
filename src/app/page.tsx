@@ -14,11 +14,20 @@ export const revalidate = 60;
 export default async function HomePage() {
   const supabase = await createClient();
 
-  const { data: messages } = await supabase
+  const { data: raw } = await supabase
     .from('messages_with_reactions')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(60);
+
+  const now = Date.now();
+  const messages = (raw ?? []).sort((a, b) => {
+    const aSticky = a.is_sticky && a.sticky_until && new Date(a.sticky_until).getTime() > now;
+    const bSticky = b.is_sticky && b.sticky_until && new Date(b.sticky_until).getTime() > now;
+    if (aSticky && !bSticky) return -1;
+    if (!aSticky && bSticky) return 1;
+    return 0;
+  });
 
   const { data: { user } } = await supabase.auth.getUser();
 

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import ReactionBar from '@/components/ReactionBar';
 import LocalTimestamp from '@/components/LocalTimestamp';
 import CommentSection from '@/components/CommentSection';
+import BoostPanel from '@/components/BoostPanel';
 import type { Message } from '@/types';
 
 const COLOR_BG: Record<string, string> = {
@@ -36,8 +37,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export default async function MessagePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function MessagePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string>> }) {
   const { id } = await params;
+  const { boost_success: boostSuccess } = await searchParams;
   const supabase = await createClient();
 
   const { data: message } = await supabase
@@ -54,6 +56,8 @@ export default async function MessagePage({ params }: { params: Promise<{ id: st
   ]);
 
   const msg = message as Message;
+  const isOwner = !!user && user.id === msg.author_id;
+  const paymentsEnabled = !!process.env.STRIPE_SECRET_KEY;
   const colorClass = COLOR_BG[msg.color] ?? COLOR_BG.rose;
   const displayName = msg.is_anonymous ? 'A secret admirer' : msg.author_name;
 
@@ -73,6 +77,12 @@ export default async function MessagePage({ params }: { params: Promise<{ id: st
       <Link href="/" className="inline-flex items-center gap-1 text-sm text-[#9ca3af] hover:text-[#f43f5e] transition mb-8">
         ← Back to the wall
       </Link>
+
+      {boostSuccess && (
+        <div className="mb-4 bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-sm text-green-700 font-medium">
+          🎉 Boost activated! {boostSuccess === 'sticky' ? 'Your note is now pinned to the top of the wall for 24 hours.' : 'Your note now has a special style.'}
+        </div>
+      )}
 
       <article className={`rounded-2xl border p-8 shadow-sm ${colorClass}`}>
         <header className="mb-6">
@@ -96,6 +106,15 @@ export default async function MessagePage({ params }: { params: Promise<{ id: st
             messageId={msg.id}
             initialComments={comments ?? []}
             isSignedIn={!!user}
+          />
+        )}
+
+        {isOwner && (
+          <BoostPanel
+            messageId={msg.id}
+            stickyUntil={msg.sticky_until}
+            premiumStyle={msg.premium_style}
+            paymentsEnabled={paymentsEnabled}
           />
         )}
       </article>

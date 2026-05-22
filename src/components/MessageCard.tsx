@@ -20,6 +20,11 @@ const HEART_MAP: Record<string, string> = {
   cream:    '🌼',
 };
 
+const PREMIUM_RING: Record<string, string> = {
+  gold: 'ring-2 ring-yellow-400 shadow-[0_0_18px_rgba(234,179,8,0.35)]',
+  glow: 'ring-2 ring-rose-400 shadow-[0_0_18px_rgba(244,63,94,0.3)]',
+};
+
 export default function MessageCard({ message }: { message: Message }) {
   const colorClass = COLOR_MAP[message.color] ?? COLOR_MAP.rose;
   const heart = HEART_MAP[message.color] ?? '❤️';
@@ -27,12 +32,15 @@ export default function MessageCard({ message }: { message: Message }) {
   const date = new Date(message.created_at).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
   });
+  const premiumClass = message.premium_style ? (PREMIUM_RING[message.premium_style] ?? '') : '';
+  const isLiveSticky = message.is_sticky && message.sticky_until && new Date(message.sticky_until) > new Date();
 
   return (
-    <div className={`masonry-item rounded-2xl border p-5 shadow-sm hover:shadow-md transition-shadow ${colorClass}`}>
+    <div className={`masonry-item rounded-2xl border p-5 shadow-sm hover:shadow-md transition-shadow ${colorClass} ${premiumClass}`}>
       <div className="text-xs text-[#9ca3af] mb-3 flex items-center gap-1.5">
         <span>{heart}</span>
         <span className="font-medium text-[#6b7280]">{displayName}</span>
+        {isLiveSticky && <span className="text-[10px] bg-yellow-100 text-yellow-700 font-semibold px-1.5 py-0.5 rounded-full">📌 featured</span>}
         <span className="ml-auto">{date}</span>
       </div>
       <Link href={`/message/${message.id}`}>

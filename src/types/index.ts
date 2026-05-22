@@ -10,6 +10,9 @@ export interface Message {
   created_at: string;
   reaction_counts?: ReactionCount[];
   allow_comments?: boolean;
+  is_sticky?: boolean;
+  sticky_until?: string | null;
+  premium_style?: 'gold' | 'glow' | null;
 }
 
 export interface ReactionCount {
