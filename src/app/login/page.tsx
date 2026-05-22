@@ -8,7 +8,6 @@ import Link from 'next/link';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,11 +26,7 @@ export default function LoginPage() {
       router.push('/');
       router.refresh();
     } else {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { display_name: displayName } },
-      });
+      const { error } = await supabase.auth.signUp({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
       setSent(true);
     }
@@ -65,19 +60,6 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={submit} className="bg-white border border-[#f1d4d4] rounded-2xl p-6 shadow-sm space-y-4">
-          {mode === 'register' && (
-            <div>
-              <label className="block text-sm font-medium text-[#374151] mb-1">Display name</label>
-              <input
-                type="text"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                required
-                placeholder="How should we call you?"
-                className="w-full border border-[#f1d4d4] rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#f43f5e]/30 focus:border-[#f43f5e]"
-              />
-            </div>
-          )}
           <div>
             <label className="block text-sm font-medium text-[#374151] mb-1">Email</label>
             <input

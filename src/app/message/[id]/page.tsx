@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import ReactionBar from '@/components/ReactionBar';
+import LocalTimestamp from '@/components/LocalTimestamp';
 import type { Message } from '@/types';
 
 const COLOR_BG: Record<string, string> = {
@@ -49,9 +50,6 @@ export default async function MessagePage({ params }: { params: Promise<{ id: st
   const msg = message as Message;
   const colorClass = COLOR_BG[msg.color] ?? COLOR_BG.rose;
   const displayName = msg.is_anonymous ? 'A secret admirer' : msg.author_name;
-  const date = new Date(msg.created_at).toLocaleDateString('en-US', {
-    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
-  });
 
   return (
     <div className="max-w-lg mx-auto px-4 py-12">
@@ -61,7 +59,9 @@ export default async function MessagePage({ params }: { params: Promise<{ id: st
 
       <article className={`rounded-2xl border p-8 shadow-sm ${colorClass}`}>
         <header className="mb-6">
-          <p className="text-sm text-[#9ca3af]">{date}</p>
+          <p className="text-sm text-[#9ca3af]">
+            <LocalTimestamp iso={msg.created_at} />
+          </p>
           <p className="text-lg font-semibold text-[#1a1a2e] mt-1">From: {displayName}</p>
         </header>
 
