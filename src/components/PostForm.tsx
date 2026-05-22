@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { submitMessage } from '@/app/post/actions';
 import type { CardColor } from '@/types';
 
 const COLORS: { id: CardColor; label: string; bg: string; ring: string }[] = [
@@ -17,14 +16,24 @@ const COLORS: { id: CardColor; label: string; bg: string; ring: string }[] = [
 const MAX_CONTENT = 500;
 const MAX_ALIAS = 40;
 
+function Toggle({ on, onToggle, label }: { on: boolean; onToggle: () => void; label: string }) {
+  return (
+    <label className="flex items-center gap-3 cursor-pointer select-none" onClick={onToggle}>
+      <div className={`w-9 h-5 rounded-full transition-colors relative ${on ? 'bg-[#f43f5e]' : 'bg-gray-200'}`}>
+        <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${on ? 'translate-x-4' : ''}`} />
+      </div>
+      <span className="text-sm text-[#374151]">{label}</span>
+    </label>
+  );
+}
+
 export default function PostForm({ userId }: { userId: string }) {
   const [content, setContent] = useState('');
   const [alias, setAlias] = useState('');
   const [color, setColor] = useState<CardColor>('rose');
+  const [allowComments, setAllowComments] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const supabase = createClient();
-  const router = useRouter();
 
   const displayAlias = alias.trim() || 'A secret admirer';
 
@@ -34,18 +43,21 @@ export default function PostForm({ userId }: { userId: string }) {
     setLoading(true);
     setError('');
 
-    const { error } = await supabase.from('messages').insert({
-      content: content.trim(),
-      color,
-      author_id: userId,
-      author_name: displayAlias,
-      is_anonymous: !alias.trim(),
-    });
-
-    if (error) { setError(error.message); setLoading(false); return; }
-    router.push('/');
-    router.refresh();
+    const result = await submitMessage({ content, color, alias, allowComments });
+    if (result?.error) {
+      setError(result.error);
+      setLoading(false);
+    }
+    // on success, server action redirects — no need to handle here
   }
+
+  const colorBg =
+    color === 'rose'     ? 'bg-[#fff1f2] border-rose-200'    :
+    color === 'lavender' ? 'bg-[#f5f3ff] border-violet-200'  :
+    color === 'sky'      ? 'bg-[#f0f9ff] border-sky-200'     :
+    color === 'mint'     ? 'bg-[#f0fdf4] border-emerald-200' :
+    color === 'peach'    ? 'bg-[#fff7ed] border-orange-200'  :
+                           'bg-[#fefce8] border-yellow-200';
 
   return (
     <form onSubmit={submit} className="bg-white border border-[#f1d4d4] rounded-2xl p-6 shadow-sm space-y-5">
@@ -96,16 +108,16 @@ export default function PostForm({ userId }: { userId: string }) {
         <p className="text-xs text-[#9ca3af] mt-1">Leave blank to stay anonymous</p>
       </div>
 
+      {/* Allow comments toggle */}
+      <Toggle
+        on={allowComments}
+        onToggle={() => setAllowComments((v) => !v)}
+        label={allowComments ? 'Comments allowed on this note' : 'Comments disabled on this note'}
+      />
+
       {/* Preview */}
       {content && (
-        <div className={`rounded-xl p-4 text-sm text-[#1a1a2e] border ${
-          color === 'rose'     ? 'bg-[#fff1f2] border-rose-200'    :
-          color === 'lavender' ? 'bg-[#f5f3ff] border-violet-200'  :
-          color === 'sky'      ? 'bg-[#f0f9ff] border-sky-200'     :
-          color === 'mint'     ? 'bg-[#f0fdf4] border-emerald-200' :
-          color === 'peach'    ? 'bg-[#fff7ed] border-orange-200'  :
-                                 'bg-[#fefce8] border-yellow-200'
-        }`}>
+        <div className={`rounded-xl p-4 text-sm text-[#1a1a2e] border ${colorBg}`}>
           <p className="text-xs text-[#9ca3af] mb-2">Preview ✨</p>
           <p className="whitespace-pre-wrap leading-relaxed">{content}</p>
           <p className="text-xs text-[#9ca3af] mt-2">— {displayAlias}</p>

@@ -33,6 +33,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main className="flex-1">{children}</main>
         <footer className="border-t border-[#f1d4d4] py-6 text-center text-sm text-[#9ca3af]">
+          <div className="flex justify-center gap-6 mb-2">
+            <a href="/about" className="hover:text-[#f43f5e] transition">About</a>
+          </div>
           Made with ❤️ — LoveWall
         </footer>
       </body>
