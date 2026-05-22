@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { stripe, BOOSTS, type BoostType } from '@/lib/stripe';
+import { getStripe, BOOSTS, type BoostType } from '@/lib/stripe';
 
 export async function createBoostCheckout(messageId: string, boostType: BoostType): Promise<void> {
   if (!process.env.STRIPE_SECRET_KEY) {
@@ -23,7 +23,7 @@ export async function createBoostCheckout(messageId: string, boostType: BoostTyp
   const boost = BOOSTS[boostType];
   const origin = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.lovewall.space';
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: [{
       price_data: {
