@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 
@@ -22,6 +23,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${geist.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-[#fff9f9]">
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-SGYZLLGS96" strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-SGYZLLGS96');
+        `}</Script>
         <Navbar />
         <main className="flex-1">{children}</main>
         <footer className="border-t border-[#f1d4d4] py-6 text-center text-sm text-[#9ca3af]">
