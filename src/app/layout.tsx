@@ -6,23 +6,52 @@ import Navbar from '@/components/Navbar';
 
 const geist = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 
+const BASE = 'https://www.lovewall.space';
+
 export const metadata: Metadata = {
-  title: { default: 'LoveWall — Share Your Love Notes', template: '%s | LoveWall' },
-  description: 'A beautiful digital love wall where people share heartfelt messages, affirmations, and love notes. Read, react, and leave your own.',
-  keywords: ['love wall', 'love notes', 'digital messages', 'heartfelt', 'affirmations', 'community'],
+  metadataBase: new URL(BASE),
+  title: { default: 'LoveWall — The Internet\'s Digital Love Note Wall', template: '%s | LoveWall' },
+  description: 'LoveWall is a free digital message wall where anyone can leave love notes, affirmations, and heartfelt messages. A living time capsule of the internet\'s kindness.',
+  keywords: [
+    'love wall', 'message wall', 'digital love notes', 'internet message wall',
+    'online affirmation wall', 'time capsule', 'anonymous love notes',
+    'heartfelt messages', 'community wall', 'wall of love', 'love notes online',
+  ],
+  alternates: { canonical: BASE },
   openGraph: {
     type: 'website',
     siteName: 'LoveWall',
-    title: 'LoveWall — Share Your Love Notes',
-    description: 'A beautiful digital love wall where people share heartfelt messages, affirmations, and love notes.',
+    url: BASE,
+    title: 'LoveWall — The Internet\'s Digital Love Note Wall',
+    description: 'A free digital message wall for love notes, affirmations, and kind words. A time capsule of the internet\'s heart.',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'LoveWall' }],
   },
-  twitter: { card: 'summary_large_image' },
+  twitter: { card: 'summary_large_image', title: 'LoveWall', description: 'The internet\'s love note wall.' },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'LoveWall',
+  url: BASE,
+  description: 'A free digital message wall where anyone can leave love notes, affirmations, and heartfelt messages.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${BASE}/?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${geist.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-[#fff9f9]">
+        <Script
+          id="json-ld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-SGYZLLGS96" strategy="afterInteractive" />
         <Script id="gtag-init" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];

@@ -51,8 +51,19 @@ export default async function MessagePage({ params }: { params: Promise<{ id: st
   const colorClass = COLOR_BG[msg.color] ?? COLOR_BG.rose;
   const displayName = msg.is_anonymous ? 'A secret admirer' : msg.author_name;
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: `A love note from ${displayName}`,
+    author: { '@type': 'Person', name: displayName },
+    datePublished: msg.created_at,
+    publisher: { '@type': 'Organization', name: 'LoveWall', url: 'https://www.lovewall.space' },
+    mainEntityOfPage: `https://www.lovewall.space/message/${msg.id}`,
+  };
+
   return (
     <div className="max-w-lg mx-auto px-4 py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Link href="/" className="inline-flex items-center gap-1 text-sm text-[#9ca3af] hover:text-[#f43f5e] transition mb-8">
         ← Back to the wall
       </Link>
